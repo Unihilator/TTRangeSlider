@@ -4,6 +4,7 @@
 //  Created by Tom Thorpe
 
 #import "TTRangeSlider.h"
+#import "PointLayer.h"
 
 const int HANDLE_TOUCH_AREA_EXPANSION = -30; //expand the touch area of the handle by this much (negative values increase size) so that you don't have to touch right on the handle to activate it.
 const float TEXT_HEIGHT = 14;
@@ -20,6 +21,8 @@ const float TEXT_HEIGHT = 14;
 
 @property (nonatomic, strong) CATextLayer *minLabel;
 @property (nonatomic, strong) CATextLayer *maxLabel;
+@property (nonatomic, strong) PointLayer *pointLeft;
+@property (nonatomic, strong) PointLayer *pointRight;
 
 @property (nonatomic, assign) CGSize minLabelTextSize;
 @property (nonatomic, assign) CGSize maxLabelTextSize;
@@ -31,6 +34,28 @@ const float TEXT_HEIGHT = 14;
 static const CGFloat kLabelsFontSize = 12.0f;
 
 @implementation TTRangeSlider
+
+- (UIBezierPath *)pathForRect:(CGRect)rect_ {
+    CGFloat borderWidth = 1;
+    CGFloat triangleHeight = 5;
+    CGFloat radius = rect_.size.height/2 - triangleHeight/2;
+    
+    CGRect rect = rect_;
+    UIBezierPath *path = [UIBezierPath new];
+    [path moveToPoint:CGPointMake(radius, 0)];
+    [path addLineToPoint:CGPointMake(rect.size.width-radius, 0)];
+    [path addArcWithCenter:CGPointMake(rect.size.width-radius, radius) radius:radius startAngle:-M_PI_2 endAngle:0 clockwise:YES];
+    [path addArcWithCenter:CGPointMake(rect.size.width-radius, rect.size.height-radius - triangleHeight) radius:radius startAngle:0 endAngle:M_PI_2 clockwise:YES];
+    [path addLineToPoint:CGPointMake(rect.size.width/2 + triangleHeight/2, rect.size.height - triangleHeight)];
+    [path addLineToPoint:CGPointMake(rect.size.width/2, rect.size.height)];
+    [path addLineToPoint:CGPointMake(rect.size.width/2 - triangleHeight/2, rect.size.height - triangleHeight)];
+    [path addLineToPoint:CGPointMake(radius, rect.size.height - triangleHeight)];
+    
+    [path addArcWithCenter:CGPointMake(radius, rect.size.height-radius-triangleHeight) radius:radius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
+    [path addArcWithCenter:CGPointMake(radius, radius) radius:radius startAngle:M_PI endAngle:-M_PI_2 clockwise:YES];
+    [path closePath];
+    return path;
+}
 
 //do all the setup in a common place, as there can be two initialisers called depending on if storyboards or code are used. The designated initialiser isn't always called :|
 - (void)initialiseControl {
@@ -75,6 +100,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.leftHandle.borderWidth = self.handleBorderWidth;
     self.leftHandle.borderColor = self.handleBorderColor.CGColor;
     self.leftHandle.contentsGravity = kCAGravityCenter;
+    
     [self.layer addSublayer:self.leftHandle];
 
     //draw the maximum slider handle
@@ -89,6 +115,23 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.leftHandle.frame = CGRectMake(0, 0, self.handleDiameter, self.handleDiameter);
     self.rightHandle.frame = CGRectMake(0, 0, self.handleDiameter, self.handleDiameter);
 
+    //draw points with text labels
+    
+    
+    self.pointLeft = [PointLayer new];
+    self.pointLeft.frame = CGRectMake(0, 0, 50, 24);
+    self.pointLeft.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
+    self.pointLeft.strokeColor = [UIColor redColor].CGColor;
+    self.pointLeft.fillColor = [UIColor whiteColor].CGColor;
+    [self.layer addSublayer:self.pointLeft];
+    
+    self.pointRight = [PointLayer new];
+    self.pointRight.frame = CGRectMake(0, 0, 50, 24);
+    self.pointRight.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
+    self.pointRight.strokeColor = [UIColor redColor].CGColor;
+    self.pointRight.fillColor = [UIColor whiteColor].CGColor;
+    [self.layer addSublayer:self.pointRight];
+    
     //draw the text labels
     self.minLabel = [[CATextLayer alloc] init];
     self.minLabel.alignmentMode = kCAAlignmentCenter;
@@ -116,7 +159,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
     self.maxLabelFont = [UIFont systemFontOfSize:kLabelsFontSize];
     [self.layer addSublayer:self.maxLabel];
-
+    
     [self refresh];
 }
 
@@ -149,8 +192,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     return self;
 }
 
--  (id)initWithFrame:(CGRect)aRect
-{
+-  (id)initWithFrame:(CGRect)aRect {
     self = [super initWithFrame:aRect];
 
     if (self)
@@ -246,17 +288,18 @@ static const CGFloat kLabelsFontSize = 12.0f;
 - (void)updateLabelPositions {
     //the centre points for the labels are X = the same x position as the relevant handle. Y = the y position of the handle minus half the height of the text label, minus some padding.
     float padding = self.labelPadding;
-    float minSpacingBetweenLabels = 8.0f;
+    float minSpacingBetweenLabels = 10.0f;
 
     CGPoint leftHandleCentre = [self getCentreOfRect:self.leftHandle.frame];
     CGPoint newMinLabelCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
+    CGPoint newMinBubbleCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.pointLeft.frame.size.height/2) - padding);
 
     CGPoint rightHandleCentre = [self getCentreOfRect:self.rightHandle.frame];
     CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
+    CGPoint newMaxBubbleCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.pointRight.frame.size.height/2) - padding);
 
     CGSize minLabelTextSize = self.minLabelTextSize;
     CGSize maxLabelTextSize = self.maxLabelTextSize;
-    
     
     self.minLabel.frame = CGRectMake(0, 0, minLabelTextSize.width, minLabelTextSize.height);
     self.maxLabel.frame = CGRectMake(0, 0, maxLabelTextSize.width, maxLabelTextSize.height);
@@ -266,18 +309,32 @@ static const CGFloat kLabelsFontSize = 12.0f;
     float newSpacingBetweenTextLabels = newLeftMostXInMaxLabel - newRightMostXInMinLabel;
 
     if (self.disableRange == YES || newSpacingBetweenTextLabels > minSpacingBetweenLabels) {
+        NSLog(@"self.disableRange == YES || newSpacingBetweenTextLabels > minSpacingBetweenLabels");
+        self.pointLeft.position = newMinBubbleCenter;
+        self.pointRight.position = newMaxBubbleCenter;
+        
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
     }
     else {
+        NSLog(@"else");
         float increaseAmount = minSpacingBetweenLabels - newSpacingBetweenTextLabels;
         newMinLabelCenter = CGPointMake(newMinLabelCenter.x - increaseAmount/2, newMinLabelCenter.y);
         newMaxLabelCenter = CGPointMake(newMaxLabelCenter.x + increaseAmount/2, newMaxLabelCenter.y);
+        
+        self.pointLeft.position = CGPointMake(newMinLabelCenter.x-minLabelTextSize.width/2, newMinLabelCenter.y);
+        self.minLabel.position = newMinLabelCenter;
+        self.maxLabel.position = newMaxLabelCenter;
+        
+        self.pointRight.position = CGPointMake(newMaxLabelCenter.x-maxLabelTextSize.width/2, newMaxLabelCenter.y);
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
 
         //Update x if they are still in the original position
         if (self.minLabel.position.x == self.maxLabel.position.x && self.leftHandle != nil) {
+            NSLog(@"Update x if they are still in the original position");
+            self.pointLeft.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
+            self.pointRight.position = CGPointMake(rightHandleCentre.x, self.maxLabel.position.y);
             self.minLabel.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
             self.maxLabel.position = CGPointMake(leftHandleCentre.x + self.minLabel.frame.size.width/2 + minSpacingBetweenLabels + self.maxLabel.frame.size.width/2, self.maxLabel.position.y);
         }
@@ -555,10 +612,10 @@ static const CGFloat kLabelsFontSize = 12.0f;
     
     CGRect startFrame = CGRectMake(0.0, 0.0, 31, 32);
     self.leftHandle.contents = (id)handleImage.CGImage;
-    self.leftHandle.frame = startFrame;
+//    self.leftHandle.frame = startFrame;
     
     self.rightHandle.contents = (id)handleImage.CGImage;
-    self.rightHandle.frame = startFrame;
+//    self.rightHandle.frame = startFrame;
     
     //Force layer background to transparant
     self.leftHandle.backgroundColor = [[UIColor clearColor] CGColor];
