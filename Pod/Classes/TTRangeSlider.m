@@ -74,6 +74,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.leftHandle.backgroundColor = self.tintColor.CGColor;
     self.leftHandle.borderWidth = self.handleBorderWidth;
     self.leftHandle.borderColor = self.handleBorderColor.CGColor;
+    self.leftHandle.contentsGravity = kCAGravityCenter;
     [self.layer addSublayer:self.leftHandle];
 
     //draw the maximum slider handle
@@ -82,6 +83,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.rightHandle.backgroundColor = self.tintColor.CGColor;
     self.rightHandle.borderWidth = self.handleBorderWidth;
     self.rightHandle.borderColor = self.handleBorderColor.CGColor;
+    self.rightHandle.contentsGravity = kCAGravityCenter;
     [self.layer addSublayer:self.rightHandle];
 
     self.leftHandle.frame = CGRectMake(0, 0, self.handleDiameter, self.handleDiameter);
