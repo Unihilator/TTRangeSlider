@@ -35,8 +35,9 @@ static const CGFloat kLabelsFontSize = 12.0f;
 @implementation TTRangeSlider
 
 - (UIBezierPath *)pathForRect:(CGRect)rect_ {
-    CGFloat borderWidth = 1;
-    CGFloat triangleHeight = 4;
+    CGFloat borderWidth = 1.0;
+    CGFloat triangleHeight = 4.0;
+    CGFloat triangleWidth = 6.0;
     CGFloat radius = rect_.size.height/2 - triangleHeight/2;
     
     CGRect rect = rect_;
@@ -45,9 +46,9 @@ static const CGFloat kLabelsFontSize = 12.0f;
     [path addLineToPoint:CGPointMake(rect.size.width-radius, 0)];
     [path addArcWithCenter:CGPointMake(rect.size.width-radius, radius) radius:radius startAngle:-M_PI_2 endAngle:0 clockwise:YES];
     [path addArcWithCenter:CGPointMake(rect.size.width-radius, rect.size.height-radius - triangleHeight) radius:radius startAngle:0 endAngle:M_PI_2 clockwise:YES];
-    [path addLineToPoint:CGPointMake(rect.size.width/2 + triangleHeight/2, rect.size.height - triangleHeight)];
+    [path addLineToPoint:CGPointMake(rect.size.width/2 + triangleWidth/2, rect.size.height - triangleHeight)];
     [path addLineToPoint:CGPointMake(rect.size.width/2, rect.size.height)];
-    [path addLineToPoint:CGPointMake(rect.size.width/2 - triangleHeight/2, rect.size.height - triangleHeight)];
+    [path addLineToPoint:CGPointMake(rect.size.width/2 - triangleWidth/2, rect.size.height - triangleHeight)];
     [path addLineToPoint:CGPointMake(radius, rect.size.height - triangleHeight)];
     
     [path addArcWithCenter:CGPointMake(radius, rect.size.height-radius-triangleHeight) radius:radius startAngle:M_PI_2 endAngle:M_PI clockwise:YES];
