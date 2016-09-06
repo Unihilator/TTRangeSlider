@@ -284,7 +284,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 - (void)updateLabelPositions {
     //the centre points for the labels are X = the same x position as the relevant handle. Y = the y position of the handle minus half the height of the text label, minus some padding.
     float padding = self.labelPadding;
-    float bubblePadding = padding - 6.0f;
+    float bubblePadding = padding - 7.0f;
     float minSpacingBetweenLabels = 4.0f;
 
     CGPoint leftHandleCentre = [self getCentreOfRect:self.leftHandle.frame];
