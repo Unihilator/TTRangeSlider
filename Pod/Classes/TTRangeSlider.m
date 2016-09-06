@@ -311,7 +311,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
     float newSpacingBetweenBubbles = newLeftMostXInMaxBubble - newRightMostXInMinBubble;
     
     if (self.disableRange == YES || newSpacingBetweenBubbles > minSpacingBetweenLabels) {
-        NSLog(@"self.disableRange == YES || newSpacingBetweenTextLabels > minSpacingBetweenLabels");
         self.bubbleLeft.position = newMinBubbleCenter;
         self.bubbleRight.position = newMaxBubbleCenter;
         
@@ -319,7 +318,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
         self.maxLabel.position = newMaxLabelCenter;
     }
     else {
-        NSLog(@"else");
         float increaseAmountBuble = minSpacingBetweenLabels - newSpacingBetweenBubbles;
         newMinBubbleCenter = CGPointMake(newMinBubbleCenter.x - increaseAmountBuble/2, newMinBubbleCenter.y);
         newMaxBubbleCenter = CGPointMake(newMaxBubbleCenter.x + increaseAmountBuble/2, newMaxBubbleCenter.y);
@@ -338,7 +336,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
         //Update x if they are still in the original position
         if (self.minLabel.position.x == self.maxLabel.position.x && self.leftHandle != nil) {
-            NSLog(@"Update x if they are still in the original position");
             self.bubbleLeft.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
             self.bubbleRight.position = CGPointMake(rightHandleCentre.x, self.maxLabel.position.y);
             self.minLabel.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
