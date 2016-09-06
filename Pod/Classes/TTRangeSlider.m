@@ -288,7 +288,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 - (void)updateLabelPositions {
     //the centre points for the labels are X = the same x position as the relevant handle. Y = the y position of the handle minus half the height of the text label, minus some padding.
     float padding = self.labelPadding;
-    float minSpacingBetweenLabels = 10.0f;
+    float minSpacingBetweenLabels = 4.0f;
 
     CGPoint leftHandleCentre = [self getCentreOfRect:self.leftHandle.frame];
     CGPoint newMinLabelCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
@@ -322,19 +322,19 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
     else {
         NSLog(@"else");
-        float increaseAmount = minSpacingBetweenLabels - newSpacingBetweenTextLabels;
-        newMinLabelCenter = CGPointMake(newMinLabelCenter.x - increaseAmount/2, newMinLabelCenter.y);
-        newMaxLabelCenter = CGPointMake(newMaxLabelCenter.x + increaseAmount/2, newMaxLabelCenter.y);
-        
         float increaseAmountBuble = minSpacingBetweenLabels - newSpacingBetweenBubbles;
         newMinBubbleCenter = CGPointMake(newMinBubbleCenter.x - increaseAmountBuble/2, newMinBubbleCenter.y);
         newMaxBubbleCenter = CGPointMake(newMaxBubbleCenter.x + increaseAmountBuble/2, newMaxBubbleCenter.y);
         
-        self.pointLeft.position = newMinBubbleCenter;
-        self.minLabel.position = newMinLabelCenter;
-        self.maxLabel.position = newMaxLabelCenter;
+        float increaseAmount = minSpacingBetweenLabels - newSpacingBetweenTextLabels;
+        newMinLabelCenter = CGPointMake(newMinLabelCenter.x - increaseAmountBuble/2, newMinLabelCenter.y);
+        newMaxLabelCenter = CGPointMake(newMaxLabelCenter.x + increaseAmountBuble/2, newMaxLabelCenter.y);
         
+        
+        
+        self.pointLeft.position = newMinBubbleCenter;
         self.pointRight.position = newMaxBubbleCenter;
+        
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
 
