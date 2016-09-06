@@ -119,14 +119,14 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.bubbleLeft = [CAShapeLayer new];
     self.bubbleLeft.frame = CGRectMake(0, 0, 50, 24);
     self.bubbleLeft.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
-    self.bubbleLeft.strokeColor = [UIColor redColor].CGColor;
+    self.bubbleLeft.strokeColor = self.tintColor.CGColor;
     self.bubbleLeft.fillColor = [UIColor whiteColor].CGColor;
     [self.layer addSublayer:self.bubbleLeft];
     
     self.bubbleRight = [CAShapeLayer new];
     self.bubbleRight.frame = CGRectMake(0, 0, 50, 24);
     self.bubbleRight.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
-    self.bubbleRight.strokeColor = [UIColor redColor].CGColor;
+    self.bubbleRight.strokeColor = self.tintColor.CGColor;
     self.bubbleRight.fillColor = [UIColor whiteColor].CGColor;
     [self.layer addSublayer:self.bubbleRight];
     
@@ -633,6 +633,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
     _handleColor = handleColor;
     self.leftHandle.backgroundColor = [handleColor CGColor];
     self.rightHandle.backgroundColor = [handleColor CGColor];
+    self.bubbleLeft.borderColor = [handleColor CGColor];
+    self.bubbleRight.borderColor = [handleColor CGColor];
 }
 
 -(void)setHandleBorderColor:(UIColor *)handleBorderColor{
