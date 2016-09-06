@@ -37,7 +37,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
 - (UIBezierPath *)pathForRect:(CGRect)rect_ {
     CGFloat borderWidth = 1;
-    CGFloat triangleHeight = 5;
+    CGFloat triangleHeight = 4;
     CGFloat radius = rect_.size.height/2 - triangleHeight/2;
     
     CGRect rect = rect_;
