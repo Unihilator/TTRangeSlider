@@ -88,7 +88,7 @@ IB_DESIGNABLE
 @property (nonatomic, assign) IBInspectable float step;
 
 /**
- *Set padding between label and handle (default 8.0)
+ *Set padding between label and handle (default 12.0)
  */
 @property (nonatomic, assign) IBInspectable CGFloat labelPadding;
 

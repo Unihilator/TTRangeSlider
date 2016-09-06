@@ -4,7 +4,6 @@
 //  Created by Tom Thorpe
 
 #import "TTRangeSlider.h"
-#import "PointLayer.h"
 
 const int HANDLE_TOUCH_AREA_EXPANSION = -30; //expand the touch area of the handle by this much (negative values increase size) so that you don't have to touch right on the handle to activate it.
 const float TEXT_HEIGHT = 14;
@@ -21,8 +20,8 @@ const float TEXT_HEIGHT = 14;
 
 @property (nonatomic, strong) CATextLayer *minLabel;
 @property (nonatomic, strong) CATextLayer *maxLabel;
-@property (nonatomic, strong) PointLayer *pointLeft;
-@property (nonatomic, strong) PointLayer *pointRight;
+@property (nonatomic, strong) CAShapeLayer *bubbleLeft;
+@property (nonatomic, strong) CAShapeLayer *bubbleRight;
 
 @property (nonatomic, assign) CGSize minLabelTextSize;
 @property (nonatomic, assign) CGSize maxLabelTextSize;
@@ -81,7 +80,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     _handleBorderWidth = 0.0;
     _handleBorderColor = self.tintColor;
     
-    _labelPadding = 8.0;
+    _labelPadding = 12.0;
     
     //draw the slider line
     self.sliderLine = [CALayer layer];
@@ -117,20 +116,19 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
     //draw points with text labels
     
+    self.bubbleLeft = [CAShapeLayer new];
+    self.bubbleLeft.frame = CGRectMake(0, 0, 50, 24);
+    self.bubbleLeft.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
+    self.bubbleLeft.strokeColor = [UIColor redColor].CGColor;
+    self.bubbleLeft.fillColor = [UIColor whiteColor].CGColor;
+    [self.layer addSublayer:self.bubbleLeft];
     
-    self.pointLeft = [PointLayer new];
-    self.pointLeft.frame = CGRectMake(0, 0, 50, 24);
-    self.pointLeft.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
-    self.pointLeft.strokeColor = [UIColor redColor].CGColor;
-    self.pointLeft.fillColor = [UIColor whiteColor].CGColor;
-    [self.layer addSublayer:self.pointLeft];
-    
-    self.pointRight = [PointLayer new];
-    self.pointRight.frame = CGRectMake(0, 0, 50, 24);
-    self.pointRight.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
-    self.pointRight.strokeColor = [UIColor redColor].CGColor;
-    self.pointRight.fillColor = [UIColor whiteColor].CGColor;
-    [self.layer addSublayer:self.pointRight];
+    self.bubbleRight = [CAShapeLayer new];
+    self.bubbleRight.frame = CGRectMake(0, 0, 50, 24);
+    self.bubbleRight.path = [self pathForRect:CGRectMake(0, 0, 50, 24)].CGPath;
+    self.bubbleRight.strokeColor = [UIColor redColor].CGColor;
+    self.bubbleRight.fillColor = [UIColor whiteColor].CGColor;
+    [self.layer addSublayer:self.bubbleRight];
     
     //draw the text labels
     self.minLabel = [[CATextLayer alloc] init];
@@ -288,15 +286,16 @@ static const CGFloat kLabelsFontSize = 12.0f;
 - (void)updateLabelPositions {
     //the centre points for the labels are X = the same x position as the relevant handle. Y = the y position of the handle minus half the height of the text label, minus some padding.
     float padding = self.labelPadding;
+    float bubblePadding = padding - 6.0f;
     float minSpacingBetweenLabels = 4.0f;
 
     CGPoint leftHandleCentre = [self getCentreOfRect:self.leftHandle.frame];
     CGPoint newMinLabelCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
-    CGPoint newMinBubbleCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.pointLeft.frame.size.height/2) - padding);
+    CGPoint newMinBubbleCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.bubbleLeft.frame.size.height/2) - bubblePadding);
 
     CGPoint rightHandleCentre = [self getCentreOfRect:self.rightHandle.frame];
     CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
-    CGPoint newMaxBubbleCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.pointRight.frame.size.height/2) - padding);
+    CGPoint newMaxBubbleCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.bubbleRight.frame.size.height/2) - bubblePadding);
 
     CGSize minLabelTextSize = self.minLabelTextSize;
     CGSize maxLabelTextSize = self.maxLabelTextSize;
@@ -308,14 +307,14 @@ static const CGFloat kLabelsFontSize = 12.0f;
     float newRightMostXInMinLabel = newMinLabelCenter.x + minLabelTextSize.width/2;
     float newSpacingBetweenTextLabels = newLeftMostXInMaxLabel - newRightMostXInMinLabel;
 
-    float newLeftMostXInMaxBubble = newMaxBubbleCenter.x - self.pointRight.bounds.size.width/2;
-    float newRightMostXInMinBubble = newMinBubbleCenter.x + self.pointLeft.bounds.size.width/2;
+    float newLeftMostXInMaxBubble = newMaxBubbleCenter.x - self.bubbleRight.bounds.size.width/2;
+    float newRightMostXInMinBubble = newMinBubbleCenter.x + self.bubbleLeft.bounds.size.width/2;
     float newSpacingBetweenBubbles = newLeftMostXInMaxBubble - newRightMostXInMinBubble;
     
     if (self.disableRange == YES || newSpacingBetweenBubbles > minSpacingBetweenLabels) {
         NSLog(@"self.disableRange == YES || newSpacingBetweenTextLabels > minSpacingBetweenLabels");
-        self.pointLeft.position = newMinBubbleCenter;
-        self.pointRight.position = newMaxBubbleCenter;
+        self.bubbleLeft.position = newMinBubbleCenter;
+        self.bubbleRight.position = newMaxBubbleCenter;
         
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
@@ -332,8 +331,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
         
         
         
-        self.pointLeft.position = newMinBubbleCenter;
-        self.pointRight.position = newMaxBubbleCenter;
+        self.bubbleLeft.position = newMinBubbleCenter;
+        self.bubbleRight.position = newMaxBubbleCenter;
         
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
@@ -341,8 +340,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
         //Update x if they are still in the original position
         if (self.minLabel.position.x == self.maxLabel.position.x && self.leftHandle != nil) {
             NSLog(@"Update x if they are still in the original position");
-            self.pointLeft.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
-            self.pointRight.position = CGPointMake(rightHandleCentre.x, self.maxLabel.position.y);
+            self.bubbleLeft.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
+            self.bubbleRight.position = CGPointMake(rightHandleCentre.x, self.maxLabel.position.y);
             self.minLabel.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
             self.maxLabel.position = CGPointMake(leftHandleCentre.x + self.minLabel.frame.size.width/2 + minSpacingBetweenLabels + self.maxLabel.frame.size.width/2, self.maxLabel.position.y);
         }
